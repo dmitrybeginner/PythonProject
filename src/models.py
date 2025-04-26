@@ -5,6 +5,11 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         """
         Инициализация объекта Product.
+
+        :param name: Название продукта
+        :param description: Описание продукта
+        :param price: Цена продукта
+        :param quantity: Количество продукта в наличии
         """
         self.name = name
         self.description = description
@@ -20,6 +25,10 @@ class Category:
     def __init__(self, name: str, description: str, products: List[Product]):
         """
         Инициализация объекта Category.
+
+        :param name: Название категории
+        :param description: Описание категории
+        :param products: Список товаров в категории
         """
         self.name = name
         self.description = description
