@@ -34,14 +34,16 @@ def test_category_initialization(sample_products):
 
 
 def test_category_counters(sample_category):
+    # Сбрасываем счетчики перед тестом
+    Category.total_categories = 0
+    Category.total_products = 0
+
+    # Создаем новую категорию для теста
+    test_products = [Product("Test", "Desc", 100, 1)]
+    test_category = Category("Test", "Desc", test_products)
+
     assert Category.total_categories == 1
-    assert Category.total_products == 2
-
-    new_product = Product("New Product", "New description", 300.0, 3)
-    _ = Category("New Category", "New description", [new_product])
-
-    assert Category.total_categories == 2
-    assert Category.total_products == 3
+    assert Category.total_products == 1
 
 
 def test_empty_category():

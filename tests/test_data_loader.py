@@ -27,7 +27,10 @@ def sample_json(tmp_path):
 
 
 def test_json_loading(sample_json):
-    Category.total_categories = 0  # Сброс счетчика
+    # Полный сброс состояния перед тестом
+    Category.total_categories = 0
+    Category.total_products = 0
+
     categories = load_categories_from_json(sample_json)
 
     assert len(categories) == 1
