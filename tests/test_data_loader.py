@@ -1,5 +1,5 @@
-import pytest
 import json
+import pytest
 from src.data_loader import load_categories_from_json
 from src.category import Category
 
@@ -22,12 +22,12 @@ def sample_json(tmp_path):
     ]
     file_path = tmp_path / "test_products.json"
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f)
+        json.dump(data, f, ensure_ascii=False)
     return file_path
 
 
 def test_json_loading(sample_json):
-    # Полный сброс состояния перед тестом
+    # Сброс счетчиков
     Category.total_categories = 0
     Category.total_products = 0
 
@@ -35,7 +35,7 @@ def test_json_loading(sample_json):
 
     assert len(categories) == 1
     assert categories[0].name == "Test Category"
-    assert len(categories[0].products) == 1
-    assert categories[0].products[0].name == "Test Product"
+    assert len(categories[0].get_products_list()) == 1
+    assert categories[0].get_products_list()[0].name == "Test Product"
     assert Category.total_categories == 1
     assert Category.total_products == 1

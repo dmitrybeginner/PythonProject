@@ -1,70 +1,65 @@
 import pytest
+from io import StringIO
 from src.product import Product
 from src.category import Category
 
 
 @pytest.fixture
-def sample_products():
-    return [
-        Product("Product 1", "Description 1", 100.0, 5),
-        Product("Product 2", "Description 2", 200.0, 10)
-    ]
+def sample_product():
+    return Product("Test Product", "Test Desc", 100, 5)
 
 
 @pytest.fixture
-def sample_category(sample_products):
-    return Category("Test Category", "Test description", sample_products)
+def sample_category(sample_product):
+    return Category("Test Category", "Test Description", [sample_product])
 
 
-def test_product_initialization():
-    product = Product("Test Product", "Test description", 150.0, 7)
-    assert product.name == "Test Product"
-    assert product.description == "Test description"
-    assert product.price == 150.0
-    assert product.quantity == 7
+def test_price_getter(sample_product):
+    """Тест геттера цены"""
+    assert sample_product.price == 100
 
 
-def test_category_initialization(sample_products):
-    category = Category("Test Category", "Test description", sample_products)
-    assert category.name == "Test Category"
-    assert category.description == "Test description"
-    assert len(category.products) == 2
-    assert category.products[0].name == "Product 1"
-    assert category.products[1].price == 200.0
+def test_negative_price_setter(sample_product, capsys):
+    """Тест установки отрицательной цены"""
+    sample_product.price = -50
+    captured = capsys.readouterr()
+    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    assert sample_product.price == 100  # Цена не изменилась
 
 
-def test_category_counters(sample_category):
-    # Сбрасываем счетчики перед тестом
-    Category.total_categories = 0
-    Category.total_products = 0
-
-    # Создаем новую категорию для теста
-    test_products = [Product("Test", "Desc", 100, 1)]
-    test_category = Category("Test", "Desc", test_products)
-
-    assert Category.total_categories == 1
-    assert Category.total_products == 1
+def test_zero_price_setter(sample_product, capsys):
+    """Тест установки нулевой цены"""
+    sample_product.price = 0
+    captured = capsys.readouterr()
+    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    assert sample_product.price == 100
 
 
-def test_empty_category():
-    Category.total_categories = 0
-    Category.total_products = 0
-
-    empty_category = Category("Empty", "No products", [])
-
-    assert Category.total_categories == 1
-    assert Category.total_products == 0
-    assert len(empty_category.products) == 0
+def test_valid_price_setter(sample_product):
+    """Тест корректного изменения цены"""
+    sample_product.price = 150
+    assert sample_product.price == 150
 
 
-def test_duplicate_products_in_categories():
-    Category.total_categories = 0
-    Category.total_products = 0
+def test_price_decrease_confirmation(sample_product, monkeypatch):
+    """Тест подтверждения понижения цены"""
+    # Симулируем ввод 'n' (отмена)
+    monkeypatch.setattr('sys.stdin', StringIO('n\n'))
+    sample_product.price = 80
+    assert sample_product.price == 100  # Цена не изменилась
 
-    product = Product("Shared", "Shared product", 100.0, 5)
+    # Симулируем ввод 'y' (подтверждение)
+    monkeypatch.setattr('sys.stdin', StringIO('y\n'))
+    sample_product.price = 80
+    assert sample_product.price == 80  # Цена изменилась
 
-    _ = Category("Cat 1", "Description", [product])
-    _ = Category("Cat 2", "Description", [product])
 
-    assert Category.total_categories == 2
-    assert Category.total_products == 2
+def test_category_operations(sample_category):
+    """Проверка, что старые тесты работают"""
+    assert "Test Product, 100 руб. Остаток: 5 шт." in sample_category.products
+    sample_category.add_product({'name': 'New', 'price': 200, 'quantity': 3})
+    assert len(sample_category.get_products_list()) == 2
+
+
+if __name__ == "__main__":
+    pytest.main()
