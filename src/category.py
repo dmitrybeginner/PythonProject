@@ -1,4 +1,5 @@
 from src.product import Product
+from src.category_iterator import CategoryIterator
 
 
 class Category:
@@ -9,9 +10,15 @@ class Category:
         self.name = name
         self.description = description
         self.__products = products
-
         Category.total_categories += 1
         Category.total_products += len(products)
+
+    def __str__(self):
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    def __iter__(self):
+        return CategoryIterator(self)
 
     def add_product(self, product_data):
         if isinstance(product_data, dict):
@@ -19,7 +26,7 @@ class Category:
         elif isinstance(product_data, Product):
             product = product_data
         else:
-            raise TypeError("Необходимо передать объект Product или словарь с данными")
+            raise TypeError("Можно добавлять только объекты Product или словари")
 
         if product not in self.__products:
             self.__products.append(product)
@@ -27,10 +34,7 @@ class Category:
 
     @property
     def products(self):
-        return "\n".join(
-            f"{p.name}, {p.price} руб. Остаток: {p.quantity} шт."
-            for p in self.__products
-        )
+        return "\n".join(str(product) for product in self.__products)
 
     def get_products_list(self):
         return self.__products

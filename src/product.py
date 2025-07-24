@@ -2,33 +2,39 @@ class Product:
     def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
-        self.__price = price  # Приватный атрибут
+        self.__price = price
         self.quantity = quantity
-        self.__previous_price = price  # Для отслеживания изменений цены
+
+    def __str__(self):
+        return f"{self.name}, {self.__price} руб. Остаток: {self.quantity} шт."
+
+    def __repr__(self):
+        return f"Product('{self.name}', {self.__price}, {self.quantity})"
+
+    def __add__(self, other):
+        if not isinstance(other, Product):
+            raise TypeError("Можно складывать только объекты класса Product")
+        return self.__price * self.quantity + other.__price * other.quantity
 
     @property
     def price(self):
-        """Геттер для цены"""
         return self.__price
 
     @price.setter
     def price(self, new_price):
-        """Сеттер для цены с проверками"""
         if new_price <= 0:
             print("Цена не должна быть нулевая или отрицательная")
             return
 
-        # Дополнительное задание: подтверждение понижения цены
         if new_price < self.__price:
-            confirmation = input(
+            confirm = input(
                 f"Цена понижается с {self.__price} до {new_price}. "
-                "Подтвердите изменение (y/n): "
+                "Подтвердите (y/n): "
             )
-            if confirmation.lower() != 'y':
+            if confirm.lower() != 'y':
                 print("Изменение цены отменено")
                 return
 
-        self.__previous_price = self.__price
         self.__price = new_price
 
     @classmethod
@@ -48,10 +54,3 @@ class Product:
                     return product
 
         return cls(name, description, price, quantity)
-
-    @classmethod
-    def from_json(cls, data):
-        return cls.new_product(data)
-
-    def __repr__(self):
-        return f"Product('{self.name}', {self.__price}, {self.quantity})"

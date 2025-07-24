@@ -1,71 +1,74 @@
-from src.category import Category
 from src.product import Product
+from src.category import Category
 from src.data_loader import load_categories_from_json
 
 
 def main():
     try:
-        # 1. Демонстрация создания нового товара
-        print("=== Создание новых товаров ===")
-        product_data = {
-            'name': 'Xiaomi Redmi Note 12',
-            'description': 'Смартфон',
-            'price': 25000,
-            'quantity': 10
-        }
+        # 1. Демонстрация работы с продуктами
+        print("=== Демонстрация работы с продуктами ===")
+        p1 = Product("iPhone 15", "Флагманский смартфон", 79990, 10)
+        p2 = Product("MacBook Pro", "Профессиональный ноутбук", 149990, 5)
 
-        # Создаем новый товар
-        new_product = Product.new_product(product_data)
-        print(f"Создан товар: {new_product.name}, {new_product.price} руб.")
+        print("\nСозданные продукты:")
+        print(p1)
+        print(p2)
 
-        # 2. Демонстрация обновления существующего товара
-        print("\n=== Обновление существующего товара ===")
-        existing_products = [new_product]
-        updated_product = Product.new_product(
-            {'name': 'Xiaomi Redmi Note 12', 'price': 27000, 'quantity': 5},
-            existing_products
-        )
-        print(
-            f"Обновленный товар: {updated_product.name}, {updated_product.price} руб., Остаток: {updated_product.quantity} шт.")
+        # Тестирование сложения продуктов
+        print(f"\nОбщая стоимость товаров: {p1 + p2} руб.")
 
-        # 3. Работа с категориями
-        print("\n=== Работа с категориями ===")
-        electronics = Category("Электроника", "Техника", [])
+        # Тестирование изменения цены
+        print("\nПопытка установить отрицательную цену:")
+        p1.price = -50000  # Должно вывести сообщение об ошибке
+        print(f"Текущая цена iPhone: {p1.price} руб.")  # Цена не изменилась
 
-        # Добавляем товар через словарь
-        electronics.add_product({
-            'name': 'Наушники Sony',
-            'price': 15000,
-            'quantity': 8
-        })
+        # 2. Демонстрация работы с категориями
+        print("\n=== Демонстрация работы с категориями ===")
+        electronics = Category("Электроника", "Техника и гаджеты", [p1, p2])
 
-        # Добавляем такой же товар с другой ценой и количеством
-        electronics.add_product({
-            'name': 'Наушники Sony',
-            'price': 13000,
-            'quantity': 4
-        })
+        print("\nКатегория:")
+        print(electronics)
 
         print("\nТовары в категории:")
         print(electronics.products)
 
-        # 4. Загрузка из JSON
-        print("\n=== Загрузка из JSON ===")
+        # Добавление нового товара
+        print("\nДобавляем новый товар:")
+        electronics.add_product({
+            "name": "AirPods Pro",
+            "price": 19990,
+            "quantity": 15
+        })
+        print(electronics)
+
+        # Демонстрация итерации по товарам
+        print("\nПеребор товаров в цикле:")
+        for product in electronics:
+            print(f"- {product.name}: {product.price} руб.")
+
+        # 3. Загрузка данных из JSON
+        print("\n=== Загрузка данных из JSON ===")
         categories = load_categories_from_json('products.json')
+
         for category in categories:
             print(f"\nКатегория: {category.name}")
-            print(category.products)
+            print("Товары:")
+            for product in category:
+                print(f"  - {product}")
 
-        # 5. Статистика
-        print("\n=== Статистика ===")
-        print(f"Всего категорий: {Category.total_categories}")
-        print(f"Всего товаров: {Category.total_products}")
-
+    except FileNotFoundError:
+        print("\nОшибка: файл products.json не найден!")
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"\nПроизошла ошибка: {str(e)}")
+
+    # Вывод итоговой статистики
+    print("\n=== Итоговая статистика ===")
+    print(f"Всего категорий: {Category.total_categories}")
+    print(f"Всего товаров: {Category.total_products}")
 
 
 if __name__ == "__main__":
+    # Сброс счетчиков перед запуском
     Category.total_categories = 0
     Category.total_products = 0
     main()
