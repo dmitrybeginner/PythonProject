@@ -1,7 +1,9 @@
-from src.product import Product
+from src.product import Product, BaseEntity
 
 
-class Category:
+class Category(BaseEntity):
+    """Класс категории товаров"""
+
     total_categories = 0
     total_products = 0
 
@@ -19,7 +21,7 @@ class Category:
         elif isinstance(product_data, Product):
             product = product_data
         else:
-            raise TypeError("Необходимо передать объект Product или словарь с данными")
+            raise TypeError("Можно добавлять только объекты Product или словари с данными")
 
         if product not in self.__products:
             self.__products.append(product)
@@ -34,6 +36,16 @@ class Category:
 
     def get_products_list(self):
         return self.__products
+
+    @property
+    def total_cost(self):
+        return sum(p.price * p.quantity for p in self.__products)
+
+    def __str__(self):
+        return (f"Категория: {self.name}\n"
+                f"Описание: {self.description}\n"
+                f"Товаров: {len(self.__products)}\n"
+                f"Общая стоимость: {self.total_cost} руб.")
 
     @classmethod
     def from_json(cls, data):

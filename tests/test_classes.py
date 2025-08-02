@@ -1,6 +1,6 @@
 import pytest
 from io import StringIO
-from src.product import Product
+from src.product import Product, Order
 from src.category import Category
 
 
@@ -15,20 +15,17 @@ def sample_category(sample_product):
 
 
 def test_price_getter(sample_product):
-    """Тест геттера цены"""
     assert sample_product.price == 100
 
 
 def test_negative_price_setter(sample_product, capsys):
-    """Тест установки отрицательной цены"""
     sample_product.price = -50
     captured = capsys.readouterr()
     assert "Цена не должна быть нулевая или отрицательная" in captured.out
-    assert sample_product.price == 100  # Цена не изменилась
+    assert sample_product.price == 100
 
 
 def test_zero_price_setter(sample_product, capsys):
-    """Тест установки нулевой цены"""
     sample_product.price = 0
     captured = capsys.readouterr()
     assert "Цена не должна быть нулевая или отрицательная" in captured.out
@@ -36,29 +33,50 @@ def test_zero_price_setter(sample_product, capsys):
 
 
 def test_valid_price_setter(sample_product):
-    """Тест корректного изменения цены"""
     sample_product.price = 150
     assert sample_product.price == 150
 
 
 def test_price_decrease_confirmation(sample_product, monkeypatch):
-    """Тест подтверждения понижения цены"""
-    # Симулируем ввод 'n' (отмена)
     monkeypatch.setattr('sys.stdin', StringIO('n\n'))
     sample_product.price = 80
-    assert sample_product.price == 100  # Цена не изменилась
+    assert sample_product.price == 100
 
-    # Симулируем ввод 'y' (подтверждение)
     monkeypatch.setattr('sys.stdin', StringIO('y\n'))
     sample_product.price = 80
-    assert sample_product.price == 80  # Цена изменилась
+    assert sample_product.price == 80
 
 
 def test_category_operations(sample_category):
-    """Проверка, что старые тесты работают"""
     assert "Test Product, 100 руб. Остаток: 5 шт." in sample_category.products
     sample_category.add_product({'name': 'New', 'price': 200, 'quantity': 3})
     assert len(sample_category.get_products_list()) == 2
+
+
+def test_creation_logger_mixin(capsys):
+    product = Product("Тестовый продукт", "Описание", 1000, 5)
+    captured = capsys.readouterr()
+    assert "Создан объект Product с параметрами:" in captured.out
+    assert "Класс: Product" in captured.out
+
+
+def test_product_repr():
+    product = Product("Телефон", "Смартфон", 15000, 3)
+    assert "Product({" in repr(product)
+    assert "'name': 'Телефон'" in repr(product)
+
+
+def test_order_creation(sample_product):
+    order = Order(sample_product, 3)
+    assert order.quantity == 3
+    assert order.total_cost == 300
+    assert "Заказ: Test Product" in str(order)
+
+
+def test_category_as_base_entity(sample_product):
+    cat = Category("Test", "Desc", [sample_product])
+    assert cat.total_cost == 500
+    assert "Категория: Test" in str(cat)
 
 
 if __name__ == "__main__":
