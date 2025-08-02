@@ -1,6 +1,6 @@
 import pytest
 from io import StringIO
-from src.product import Product, Order
+from src.product import Product, Order, Smartphone, LawnGrass
 from src.category import Category
 
 
@@ -77,6 +77,48 @@ def test_category_as_base_entity(sample_product):
     cat = Category("Test", "Desc", [sample_product])
     assert cat.total_cost == 500
     assert "Категория: Test" in str(cat)
+
+
+def test_category_operations(sample_category):
+    """Проверка операций с категорией"""
+    assert "Test Product, 100 руб. Остаток: 5 шт." in sample_category.products
+    # Добавляем description в тестовые данные
+    sample_category.add_product({
+        'name': 'New',
+        'description': 'New desc',  # Добавлено
+        'price': 200,
+        'quantity': 3
+    })
+    assert len(sample_category.get_products_list()) == 2
+
+def test_smartphone_new_product():
+    phone_data = {
+        'name': 'Galaxy S23',
+        'description': 'Flagship smartphone',  # Добавлено
+        'price': 799.99,
+        'quantity': 5,
+        'efficiency': 'Высокая',
+        'model': 'S23 Ultra',
+        'memory': 512,
+        'color': 'Черный'
+    }
+    phone = Smartphone.new_product(phone_data)
+    assert phone.memory == 512
+    assert isinstance(phone, Smartphone)
+
+def test_lawn_grass_new_product():
+    grass_data = {
+        'name': 'Газон Люкс',
+        'description': 'Premium grass',  # Добавлено
+        'price': 1500,
+        'quantity': 20,
+        'country': 'Германия',
+        'germination_period': 21,
+        'color': 'Изумрудный'
+    }
+    grass = LawnGrass.new_product(grass_data)
+    assert grass.germination_period == 21
+    assert isinstance(grass, LawnGrass)
 
 
 if __name__ == "__main__":

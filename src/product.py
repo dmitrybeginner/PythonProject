@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Any
 
 
 class BaseProduct(ABC):
@@ -24,6 +25,12 @@ class BaseProduct(ABC):
     @price.setter
     @abstractmethod
     def price(self, new_price):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, product_data: Dict[str, Any], products_list=None):
+        """Абстрактный метод создания нового продукта"""
         pass
 
 
@@ -84,7 +91,7 @@ class Product(CreationLoggerMixin, BaseProduct):
     @classmethod
     def new_product(cls, product_data, products_list=None):
         name = product_data['name']
-        description = product_data.get('description', '')
+        description = product_data.get('description', '')  # Добавляем значение по умолчанию
         price = product_data['price']
         quantity = product_data['quantity']
 
@@ -97,7 +104,15 @@ class Product(CreationLoggerMixin, BaseProduct):
                         product.description = description
                     return product
 
-        return cls(name, description, price, quantity)
+        # Явно передаем обязательные аргументы
+        return cls(
+            name=name,
+            description=description,
+            price=price,
+            quantity=quantity,
+            **{k: v for k, v in product_data.items()
+               if k not in ['name', 'description', 'price', 'quantity']}
+        )
 
     @classmethod
     def from_json(cls, data):
@@ -159,6 +174,15 @@ class Smartphone(Product):
                 f"Память: {self.memory}GB\n"
                 f"Цвет: {self.color}")
 
+    @classmethod
+    def new_product(cls, product_data: Dict[str, Any], products_list=None):
+        # Проверка обязательных полей для смартфона
+        required_fields = ['efficiency', 'model', 'memory', 'color']
+        if not all(field in product_data for field in required_fields):
+            raise ValueError("Отсутствуют обязательные поля для смартфона")
+
+        return super().new_product(product_data, products_list)
+
 
 class LawnGrass(Product):
     """Класс газонной травы"""
@@ -176,3 +200,12 @@ class LawnGrass(Product):
                 f"Страна: {self.country}\n"
                 f"Срок прорастания: {self.germination_period} дней\n"
                 f"Цвет: {self.color}")
+
+    @classmethod
+    def new_product(cls, product_data: Dict[str, Any], products_list=None):
+        # Проверка обязательных полей для газона
+        required_fields = ['country', 'germination_period', 'color']
+        if not all(field in product_data for field in required_fields):
+            raise ValueError("Отсутствуют обязательные поля для газонной травы")
+
+        return super().new_product(product_data, products_list)
