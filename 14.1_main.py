@@ -1,5 +1,5 @@
 from src.category import Category
-from src.product import Product
+from src.product import Product, Smartphone, LawnGrass
 from src.data_loader import load_categories_from_json
 
 
@@ -65,7 +65,38 @@ def main():
         print(f"Ошибка: {e}")
 
 
+def demonstrate_inheritance():
+    print("\n=== Демонстрация наследования ===")
+
+    # Создаем продукты разных типов
+    regular_product = Product("Коврик", "Для мыши", 500, 100)
+    smartphone = Smartphone(
+        "iPhone 15", "Флагман Apple", 89990, 15,
+        "Высокая", "15 Pro", 256, "Титан"
+    )
+    grass = LawnGrass(
+        "Газон Люкс", "Премиум качество", 1500, 200,
+        "Германия", 21, "Изумрудный"
+    )
+
+    # Создаем категорию с разными типами товаров
+    mixed_category = Category("Разные товары", "Разнообразный ассортимент", [
+        regular_product,
+        smartphone,
+        grass
+    ])
+
+    # Демонстрация работы
+    print("\nТовары в категории:")
+    for product in mixed_category:
+        print(f"\n{product}\n{'-' * 30}")
+
+    # Проверка наследования функционала
+    print(f"\nСуммарная стоимость (коврик + газон): {regular_product + grass} руб.")
+
+
 if __name__ == "__main__":
     Category.total_categories = 0
     Category.total_products = 0
     main()
+    demonstrate_inheritance()

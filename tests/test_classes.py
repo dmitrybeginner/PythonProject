@@ -1,6 +1,6 @@
 import pytest
 from io import StringIO
-from src.product import Product
+from src.product import Product, Smartphone, LawnGrass
 from src.category import Category
 
 
@@ -59,6 +59,59 @@ def test_category_operations(sample_category):
     assert "Test Product, 100 руб. Остаток: 5 шт." in sample_category.products
     sample_category.add_product({'name': 'New', 'price': 200, 'quantity': 3})
     assert len(sample_category.get_products_list()) == 2
+
+
+def test_add_invalid_product(sample_category):
+    """Попытка добавить не-продукт (должна вызывать TypeError)"""
+    with pytest.raises(TypeError, match="Можно добавлять только объекты Product или его наследников"):
+        sample_category.add_product("Это не продукт")  # Строка вместо продукта
+
+    with pytest.raises(TypeError):
+        sample_category.add_product(123)  # Число вместо продукта
+
+    with pytest.raises(TypeError):
+        sample_category.add_product([])  # Список вместо продукта
+
+
+def test_add_valid_subclasses(sample_category):
+    """Проверка добавления Smartphone и LawnGrass"""
+    smartphone = Smartphone(
+        "iPhone 15", "Флагман", 89990, 5,
+        "Высокая", "15 Pro", 256, "Титан"
+    )
+    lawn_grass = LawnGrass(
+        "Газон Люкс", "Премиум", 1500, 10,
+        "Германия", 21, "Изумрудный"
+    )
+
+    sample_category.add_product(smartphone)  # ОК
+    sample_category.add_product(lawn_grass)  # ОК
+
+    assert len(sample_category.get_products_list()) == 3  # Был 1 продукт + 2 новых
+
+
+def test_add_product_with_invalid_type(sample_category, capsys):
+    """Попытка добавить в категорию объект, не являющийся Product или его наследником."""
+    invalid_objects = ["Not a product", 123, None, {"name": "Dict but not Product"}]
+
+    for obj in invalid_objects:
+        with pytest.raises(TypeError, match="Можно добавлять только объекты Product или его наследников"):
+            sample_category.add_product(obj)
+
+    # Проверяем, что количество продуктов не изменилось
+    assert len(sample_category.get_products_list()) == 1
+
+
+def test_add_product_with_invalid_type(sample_category):
+    """Попытка добавить в категорию объект, не являющийся Product или его наследником."""
+    invalid_objects = ["Not a product", 123, None, {"name": "Dict but not Product"}]  # Невалидные данные
+
+    for obj in invalid_objects:
+        with pytest.raises((TypeError, ValueError)):
+            sample_category.add_product(obj)
+
+    # Проверяем, что количество продуктов не изменилось
+    assert len(sample_category.get_products_list()) == 1
 
 
 if __name__ == "__main__":

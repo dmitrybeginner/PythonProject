@@ -55,3 +55,55 @@ class Product:
 
     def __repr__(self):
         return f"Product('{self.name}', {self.__price}, {self.quantity})"
+
+    def __add__(self, other):
+        """Сложение товаров одного класса (по количеству и цене)"""
+        if type(self) != type(other):
+            raise TypeError("Нельзя складывать товары разных классов")
+        total_quantity = self.quantity + other.quantity
+        total_price = self.price * self.quantity + other.price * other.quantity
+        return total_price
+
+
+class Smartphone(Product):
+    def __init__(self, name, description, price, quantity,
+                 efficiency, model, memory, color):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+    def __add__(self, other):
+        """Сложение только смартфонов (наследуется от Product)"""
+        return super().__add__(other)
+
+    def __str__(self):
+        base_str = super().__str__()
+        return (f"{base_str}\n"
+                f"Производительность: {self.efficiency}, "
+                f"Модель: {self.model}, "
+                f"Память: {self.memory}GB, "
+                f"Цвет: {self.color}")
+
+
+class LawnGrass(Product):
+    def __init__(self, name, description, price, quantity,
+                 country, germination_period, color):
+        if germination_period <= 0:
+            raise ValueError("Срок прорастания должен быть положительным числом")
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+    def __add__(self, other):
+        """Сложение только газонов (наследуется от Product)"""
+        return super().__add__(other)
+
+    def __str__(self):
+        base_str = super().__str__()
+        return (f"{base_str}\n"
+                f"Страна: {self.country}, "
+                f"Прорастание: {self.germination_period} дней, "
+                f"Цвет: {self.color}")

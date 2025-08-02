@@ -14,12 +14,15 @@ class Category:
         Category.total_products += len(products)
 
     def add_product(self, product_data):
-        if isinstance(product_data, dict):
-            product = Product.new_product(product_data, self.__products)
-        elif isinstance(product_data, Product):
+        """Добавляет продукт в категорию (только Product или его наследники)."""
+        if isinstance(product_data, Product):
             product = product_data
+        elif isinstance(product_data, dict):
+            if not all(key in product_data for key in ['name', 'price', 'quantity']):
+                raise ValueError("Словарь должен содержать 'name', 'price' и 'quantity'")
+            product = Product.new_product(product_data, self.__products)
         else:
-            raise TypeError("Необходимо передать объект Product или словарь с данными")
+            raise TypeError("Можно добавлять только объекты Product или его наследников")  # Изменено здесь
 
         if product not in self.__products:
             self.__products.append(product)
