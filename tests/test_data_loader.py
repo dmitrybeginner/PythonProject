@@ -15,13 +15,13 @@ def sample_json(tmp_path):
                     "name": "Test Product",
                     "description": "Test product desc",
                     "price": 100.0,
-                    "quantity": 5
+                    "quantity": 5,
                 }
-            ]
+            ],
         }
     ]
     file_path = tmp_path / "test_products.json"
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
     return file_path
 
